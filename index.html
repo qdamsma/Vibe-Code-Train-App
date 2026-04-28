@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#fafaf7">
+<title>Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fafaf7;
+  --surface:#f0efea;
+  --card:#ffffff;
+  --border:#e3e1d8;
+  --border2:#cbc9bf;
+  --accent:#3a7a1f;
+  --accent-soft:#eaf3df;
+  --accent-strong:#2d5e15;
+  --text:#1a1a17;
+  --muted:#8a8880;
+  --muted2:#6b6962;
+  --orange:#b85a14;
+  --orange-soft:#fdf3e8;
+  --orange-border:#f0d6b8;
+  --blue:#1f5db5;
+}
+[data-theme="dark"]{
+  --bg:#0d0d0d;
+  --surface:#161616;
+  --card:#1a1a1a;
+  --border:#272727;
+  --border2:#333;
+  --accent:#c8f135;
+  --accent-soft:#0f150a;
+  --accent-strong:#a3c722;
+  --text:#f2f2f2;
+  --muted:#555;
+  --muted2:#888;
+  --orange:#ff8c42;
+  --orange-soft:#1f1209;
+  --orange-border:#3a1f08;
+  --blue:#4d9fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;display:flex;flex-direction:column;max-width:480px;margin:0 auto;transition:background 0.2s,color 0.2s}
+
+.header{padding:14px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.header-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;letter-spacing:1px;line-height:1;color:var(--text)}
+.header-title span{color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted2);transition:all 0.15s;padding:0}
+.icon-btn:active{transform:scale(0.94)}
+.icon-btn:hover{color:var(--text)}
+.icon-btn svg{width:16px;height:16px}
+
+.week-chip{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);background:var(--surface);border:1px solid var(--border);padding:5px 9px;border-radius:3px;white-space:nowrap}
+.progress-wrap{margin-top:8px;display:flex;align-items:center;gap:10px}
+.progress-bar-bg{flex:1;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s cubic-bezier(.4,0,.2,1)}
+.progress-label{font-size:11px;color:var(--muted2);min-width:28px;text-align:right}
+
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 14px;font-size:12px;font-weight:500;letter-spacing:0.3px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:active{opacity:0.7}
+
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 80px}
+.scroll::-webkit-scrollbar{display:none}
+
+.slabel{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.slabel:first-child{margin-top:0}
+
+.phase-row{display:flex;gap:6px;margin-bottom:12px}
+.phase-btn{flex:1;padding:8px 4px;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--muted2);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;text-align:center;transition:all 0.15s;line-height:1.4}
+.phase-btn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong)}
+
+.ex-card{background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden;transition:border-color 0.2s,background 0.2s}
+.ex-card.all-done{border-color:var(--accent);background:var(--accent-soft)}
+.ex-top{display:flex;align-items:center;gap:11px;padding:12px 13px;cursor:pointer;user-select:none}
+.ex-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;cursor:pointer;background:transparent}
+.ex-check.checked{background:var(--accent);border-color:var(--accent)}
+.ex-check svg{opacity:0;transition:opacity 0.15s}
+.ex-check.checked svg{opacity:1}
+.ex-body{flex:1;min-width:0}
+.ex-name{font-size:14px;font-weight:500;color:var(--text);transition:color 0.2s}
+.all-done .ex-name{color:var(--muted);text-decoration:line-through}
+.ex-meta{font-size:11px;color:var(--muted2);margin-top:2px}
+.ex-arrow{font-size:11px;color:var(--muted);transition:transform 0.2s;flex-shrink:0}
+.ex-arrow.open{transform:rotate(180deg)}
+
+.knee-tag{font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--orange);background:var(--orange-soft);border:1px solid var(--orange-border);padding:2px 6px;border-radius:3px;margin-left:5px;vertical-align:middle}
+
+.sets-row{display:flex;gap:6px;padding:0 13px 12px 46px;flex-wrap:wrap}
+.set-btn{height:28px;padding:0 11px;border:1px solid var(--border2);border-radius:3px;background:transparent;color:var(--muted2);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s}
+.set-btn.done{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="dark"] .set-btn.done{color:#000}
+.set-btn:active{transform:scale(0.95)}
+
+.guide{margin:0 13px 0 46px;padding:11px 0 13px;border-top:1px solid var(--border)}
+.guide-how{font-size:13px;color:var(--muted2);line-height:1.65;margin-bottom:9px}
+.guide-how strong{color:var(--text);font-weight:500}
+.guide-tips{list-style:none}
+.guide-tips li{font-size:12px;color:var(--muted2);line-height:1.6;padding-left:13px;position:relative;margin-bottom:3px}
+.guide-tips li::before{content:'–';position:absolute;left:0;color:var(--accent)}
+.knee-note{margin-top:9px;padding:8px 10px;background:var(--orange-soft);border:1px solid var(--orange-border);border-radius:4px;font-size:12px;color:var(--orange);line-height:1.5}
+.knee-note strong{color:var(--orange);font-weight:500}
+
+.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200}
+[data-theme="dark"] .timer-overlay{background:rgba(0,0,0,0.93)}
+.timer-overlay.visible{display:flex}
+.timer-panel{background:var(--card);border-radius:12px;padding:32px 40px;display:flex;flex-direction:column;align-items:center;border:1px solid var(--border)}
+.timer-label{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:16px}
+.timer-circle{width:160px;height:160px;position:relative;margin-bottom:20px}
+.timer-svg{transform:rotate(-90deg)}
+.timer-track{fill:none;stroke:var(--border);stroke-width:6}
+.timer-prog{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 0.9s linear}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:700;color:var(--text);letter-spacing:-1px}
+.timer-skip{font-size:12px;font-weight:500;color:var(--muted2);background:var(--surface);border:1px solid var(--border);padding:10px 28px;border-radius:4px;cursor:pointer}
+
+.special{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:26px 18px;text-align:center;margin-bottom:8px}
+.special h3{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+.special p{font-size:13px;color:var(--muted2);line-height:1.6}
+.special.run h3{color:var(--blue)}
+.special.rest h3{color:var(--muted)}
+
+.nut-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.nut-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:13px}
+.nut-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--accent)}
+.nut-lbl{font-size:11px;color:var(--muted2);margin-top:2px}
+
+.stretch-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px 13px;margin-bottom:8px}
+.stretch-card h4{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.stretch-card p{font-size:12px;color:var(--muted2);line-height:1.65}
+.stretch-sets{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+
+/* SETTINGS MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+.modal-overlay.visible{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px 18px;width:100%;max-width:380px;max-height:85vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text)}
+.modal-close{background:transparent;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;padding:4px}
+
+.setting-group{margin-bottom:18px}
+.setting-label{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:6px}
+.setting-row label{font-size:13px;color:var(--text);cursor:pointer}
+.time-input{background:var(--card);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:5px 8px;width:90px;font-weight:500;text-align:center}
+.toggle{position:relative;width:38px;height:22px;background:var(--border);border-radius:11px;cursor:pointer;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--card);border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle.on::after{transform:translateX(16px)}
+
+.info-box{font-size:12px;color:var(--muted2);line-height:1.55;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:10px}
+.info-box strong{color:var(--text);font-weight:500}
+
+.btn-primary{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:0.3px}
+[data-theme="dark"] .btn-primary{color:#000}
+.btn-primary:active{opacity:0.85}
+.btn-secondary{width:100%;padding:11px;background:transparent;color:var(--muted2);border:1px solid var(--border);border-radius:4px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;margin-top:6px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:6px;font-size:13px;font-weight:500;z-index:400;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.toast.visible{opacity:1}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">TRAIN<span>.</span></div>
+    <div class="header-right">
+      <div class="week-chip" id="weekChip">FASE 1</div>
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Wissel thema">
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+      <button class="icon-btn" onclick="openSettings()" title="Instellingen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0/0</div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="scroll" id="scroll"></div>
+
+<div class="timer-overlay" id="timerOverlay">
+  <div class="timer-panel">
+    <div class="timer-label">Rust</div>
+    <div class="timer-circle">
+      <svg class="timer-svg" width="160" height="160" viewBox="0 0 160 160">
+        <circle class="timer-track" cx="80" cy="80" r="68"/>
+        <circle class="timer-prog" id="timerProg" cx="80" cy="80" r="68" stroke-dasharray="427.3" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-num" id="timerNum">90</div>
+    </div>
+    <button class="timer-skip" onclick="skipTimer()">Overslaan</button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Instellingen</div>
+      <button class="modal-close" onclick="closeSettings()">×</button>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label">Thema</div>
+      <div class="setting-row">
+        <label>Donkere modus</label>
+        <div class="toggle" id="themeToggle" onclick="toggleTheme()"></div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label">Reminders</div>
+      <div class="info-box"><strong>Let op:</strong> meldingen werken alleen als de app open is. Voor betrouwbare meldingen ook als de app dicht is, gebruik de Klok of Agenda app van je telefoon.</div>
+      <div class="setting-row">
+        <label>Reminders aan</label>
+        <div class="toggle" id="reminderToggle" onclick="toggleReminders()"></div>
+      </div>
+      <div class="setting-row">
+        <label>Ochtend</label>
+        <input type="time" class="time-input" id="morningTime" value="09:00" onchange="saveTimes()">
+      </div>
+      <div class="setting-row">
+        <label>Avond</label>
+        <input type="time" class="time-input" id="eveningTime" value="21:00" onchange="saveTimes()">
+      </div>
+      <button class="btn-secondary" onclick="testNotification()">Test melding</button>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label">Voortgang</div>
+      <button class="btn-secondary" onclick="resetProgress()">Reset deze week</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PHASES=[{label:'Fase 1',weeks:'1–4'},{label:'Fase 2',weeks:'5–8'},{label:'Fase 3',weeks:'9–12'}];
+const X=(name,sets,reps,rest,knee,how,tips,kn)=>({name,sets,reps,rest,knee:!!knee,guide:{how,tips,kn:kn||null}});
+
+const DAYS_BY_PHASE=[
+[
+{key:'d1',label:'Dag 1',sub:'Upper push',badge:'push',type:'workout',exercises:[
+X('Push-ups',4,'12',90,0,'Handen iets breder dan schouderbreedte, lichaam recht. Buig gecontroleerd, duw explosief omhoog.',['Geen hangende heupen','Ellebogen licht naar buiten','Gecontroleerd naar beneden']),
+X('Dumbbell shoulder press',3,'10',90,0,'Dumbbells op schouderhoogte, handpalmen naar voren. Duw omhoog tot bijna gestrekt, laat gecontroleerd zakken.',['Span je core aan','Sluit dumbbells licht boven je hoofd','Stop net voor volledige extensie']),
+X('Dumbbell chest fly',3,'12',90,0,'Lig op je rug, dumbbells omhoog, lichte buiging in de elleboog. Laat armen wijd opengaan tot je rek voelt in de borst, breng terug.',['Lichte buiging in de elleboog houden','Voel de borst, niet de schouder','Controleer de beweging naar beneden']),
+X('Tricep dips (stoel)',3,'12',90,0,'Handen op een stevige stoel achter je. Laat je zakken door de armen te buigen tot ~90°, duw omhoog.',['Rug dicht bij de stoel','Ellebogen naar achteren, niet uitstaan','Niet te diep als schouders protesteren']),
+]},
+{key:'d2',label:'Dag 2',sub:'Lower + core',badge:'lower',type:'workout',exercises:[
+X('Goblet squat',4,'12',120,1,'Dumbbell voor de borst, voeten schouderbreedte, tenen licht naar buiten. Squat tot bovenbeen parallel, duw knieën naar buiten.',['Hiel blijft op de grond','Borst rechtop','Knieën in lijn met de tenen'],'Houd kniehoek beperkt als het pijnlijk is — max 90°. Stop bij pijn.'),
+X('Romanian deadlift',3,'10',90,0,'Dumbbells voor je dijen. Buig voorover vanuit de heupen, dumbbells langs het been, tot hamstring rek voelt.',['Rug recht houden','Heupen naar achteren, niet naar beneden','Stop als de rug wil ronden']),
+X('Bulgarian split squat',3,'10/been',120,1,'Achterste voet op een stoel, voorste voet ver naar voren. Laat het achterste been zakken, voorste knie niet over de teen.',['Romp rechtop','Voel het in quad en bil','Gebruik steun als nodig'],'Houd de range beperkt — max 70–80° kniehoek. Geen gewicht in fase 1. Stop direct bij pijn.'),
+X('Plank',3,'45 sec',60,0,'Onderarmen en tenen op de grond. Houd een rechte lijn van hoofd tot hak.',['Span core actief aan','Billen niet omhoog duwen','Adem door']),
+X('Terminal knee extension',3,'15/been',60,1,'Weerstandsband laag bevestigd. Lus om knie, stap terug voor spanning. Strek knie vanuit licht gebogen naar volledig gestrekt.',['Langzaam en gecontroleerd','Voel de binnenkant van de quad (VMO)','Altijd uitvoeren'],'Revalidatie-oefening voor je knie. Versterkt de VMO die de knieschijf stabiel houdt. Altijd doen.'),
+]},
+{key:'d3',label:'Dag 3',sub:'Hardlopen',badge:'cardio',type:'run'},
+{key:'d4',label:'Dag 4',sub:'Upper pull',badge:'pull',type:'workout',exercises:[
+X('Pull-ups / inv. rows',4,'max',120,0,'Pull-up: hang aan stang, trek jezelf omhoog tot kin over de stang. Inverted row: lig onder tafel, trek borst omhoog.',['Schouderbladen activeren voor je trekt','Niet slingeren','Gecontroleerd terug zakken']),
+X('Dumbbell row',3,'10/arm',90,0,'Knie en hand als steun. Trek de dumbbell langs het lichaam omhoog tot elleboog voorbij de rug.',['Elleboog dicht langs het lichaam','Draai niet mee met je schouder','Voel samentrekking boven aan de beweging']),
+X('Dumbbell curl',3,'12',60,0,'Dumbbells langs je zij. Krul omhoog met de bicep, gecontroleerd terug.',['Ellebogen vast naast je romp','Volledig naar beneden','Supineer de pols bij het curlen']),
+X('Face pulls (band)',3,'15',60,0,'Band op ooghoogte. Trek naar je gezicht, ellebogen omhoog en naar buiten, handen naast oren.',['Ellebogen hoger dan handen','Trage beweging','Voel achterste schouder en midden-rug']),
+]},
+{key:'d5',label:'Dag 5',sub:'Lower + core',badge:'lower',type:'workout',exercises:[
+X('Sumo squat',4,'12',120,1,'Brede stance, tenen sterk naar buiten. Squat diep, knieën volgen de tenen.',['Knieën actief naar buiten drukken','Billen mee aan de beweging','Hiel op de grond'],'Houd de kniehoek beperkt bij pijn. Stop als de knieschijf prikt.'),
+X('Hip thrust',3,'12',90,0,'Rug op bank/vloer, dumbbell op heupen. Duw heupen omhoog tot rechte lijn knie–schouder.',['Knijp billen samen bovenaan','Voeten plat, knieën 90°','Chin to chest — nek neutraal']),
+X('Bulgarian split squat',3,'10/been',120,1,'Achterste voet op stoel, voorste ver naar voren. Zak neer, achterste knie naar de grond.',['Balans kost tijd — neem de tijd','Voorste been doet het werk','Romp recht'],'Zelfde als dag 2. Geen gewicht in fase 1. Max 70–80° kniehoek.'),
+X('Dead bug',3,'10',60,0,'Lig op je rug, armen omhoog, knieën 90° in de lucht. Strek tegelijk rechterarm en linkerbeen, terug, wissel.',['Onderrug altijd op de grond','Adem uit tijdens uitstrekken','Langzaam en gecontroleerd']),
+X('Clamshells (band)',3,'15/kant',60,1,'Band om knieën. Zij liggend, knieën gebogen. Open je bovenbeen als een schelp.',['Niet de heup naar achteren draaien','Voel de buitenkant van de bil','Langzaam omlaag'],'Versterkt heupabductoren — essentieel voor kniestabiliteit. Altijd uitvoeren.'),
+]},
+{key:'d6',label:'Dag 6',sub:'Hardlopen',badge:'cardio',type:'run'},
+{key:'d7',label:'Dag 7',sub:'Rust',badge:'rest',type:'rest'},
+{key:'nt',label:'Voeding',sub:'Info',badge:'info',type:'nutrition'},
+{key:'hd',label:'Houding',sub:'Dagelijks',badge:'info',type:'posture'},
+],
+[
+{key:'d1',label:'Dag 1',sub:'Upper push',badge:'push',type:'workout',exercises:[
+X('Incline push-up',4,'12',90,0,'Voeten op een stoel of bank, handen op de grond. Normale push-up uitvoering — meer belasting op de bovenste borst.',['Lichaam recht houden','Ellebogen licht naar buiten','Controleer de beweging']),
+X('Dumbbell shoulder press',4,'10',90,0,'Dumbbells op schouderhoogte, handpalmen naar voren. Duw omhoog, laat gecontroleerd zakken.',['Span je core aan','Sluit dumbbells boven je hoofd','Stop net voor volledige extensie']),
+X('Dumbbell chest fly',3,'12',90,0,'Lig op je rug, dumbbells omhoog. Laat de armen wijd opengaan tot je rek voelt.',['Lichte buiging in de elleboog','Voel de borst','Controleer de beweging naar beneden']),
+X('Skull crushers',3,'12',90,0,'Lig op je rug, dumbbells omhoog. Buig alleen de ellebogen — dumbbells zakken naar je slapen, dan strekken.',['Ellebogen op dezelfde plek houden','Gecontroleerd naar beneden','Voel de tricep langs de hele beweging']),
+]},
+{key:'d2',label:'Dag 2',sub:'Lower + core',badge:'lower',type:'workout',exercises:[
+X('Goblet squat',4,'12',120,1,'Dumbbell voor de borst, voeten schouderbreedte. Squat tot parallel, knieën naar buiten.',['Hiel op de grond','Borst rechtop','Knieën in lijn met de tenen'],'Voeg licht gewicht toe als het pijnvrij gaat. Nog steeds max 90° kniehoek.'),
+X('Romanian deadlift',4,'10',90,0,'Dumbbells voor je dijen. Buig vanuit de heupen tot hamstring rek voelt.',['Rug recht','Heupen naar achteren','Stop bij ronden van de rug']),
+X('Bulgarian split squat',3,'10/been',120,1,'Achterste voet op stoel. Laat achterste been zakken.',['Romp rechtop','Voel het in quad en bil','Gebruik licht gewicht als het goed gaat'],'Voeg nu licht gewicht toe als fase 1 pijnvrij was. Houd kniehoek beperkt.'),
+X('Ab wheel rollout',3,'10',60,0,'Knieel op de grond met ab wheel. Rol langzaam naar voren terwijl je core aanspant, rol terug.',['Onderrug niet laten doorzakken','Span core maximaal aan','Begin klein']),
+X('Terminal knee extension',3,'15/been',60,1,'Band laag bevestigd. Strek de knie vanuit licht gebogen naar volledig gestrekt.',['Langzaam en gecontroleerd','Voel de VMO','Altijd uitvoeren'],'Revalidatie-oefening. Altijd blijven doen.'),
+]},
+{key:'d3',label:'Dag 3',sub:'Hardlopen',badge:'cardio',type:'run'},
+{key:'d4',label:'Dag 4',sub:'Upper pull',badge:'pull',type:'workout',exercises:[
+X('Pull-ups / inv. rows',4,'max',120,0,'Trek jezelf omhoog tot kin over de stang. Of inverted row onder een tafel.',['Schouderbladen eerst activeren','Niet slingeren','Gecontroleerd terug']),
+X('Dumbbell row',3,'12/arm',90,0,'Knie als steun. Trek de dumbbell omhoog langs het lichaam.',['Elleboog dicht langs het lichaam','Draai niet mee','Voel rug samentrekken']),
+X('Hammer curl',3,'12',60,0,'Dumbbells met neutrale grip (duim omhoog). Curl omhoog, gecontroleerd terug. Traint bicep en onderarm.',['Ellebogen vast naast romp','Geen slingerbewegingen','Volledig naar beneden']),
+X('Face pulls (band)',3,'15',60,0,'Band op ooghoogte. Trek naar gezicht, ellebogen omhoog.',['Ellebogen hoger dan handen','Trage beweging','Achterste schouder en midden-rug']),
+X('Band pull-apart',3,'15',60,0,'Houd band voor je op schouderhoogte, armen gestrekt. Trek de band uiteen, gecontroleerd terug.',['Armen gestrekt houden','Squeeze op het einde','Voel tussen de schouderbladen']),
+]},
+{key:'d5',label:'Dag 5',sub:'Lower + core',badge:'lower',type:'workout',exercises:[
+X('Sumo deadlift',4,'10',120,1,'Brede stance, teen naar buiten. Pak de dumbbell in het midden, rug recht, trek omhoog vanuit benen en heupen.',['Rug recht houden','Heupen en schouders gelijkmatig omhoog','Knieën volgen de tenen'],'Vriendelijker voor de knie dan squat. Stop bij pijn.'),
+X('Hip thrust',4,'12',90,0,'Rug op bank, dumbbell op heupen. Duw heupen omhoog.',['Knijp billen samen','Voeten plat, knieën 90°','Nek neutraal']),
+X('Bulgarian split squat',3,'10/been',120,1,'Achterste voet op stoel. Laat achterste been zakken.',['Balans kost tijd','Voorste been doet het werk','Romp recht'],'Zelfde als dag 2. Voeg licht gewicht toe als het goed gaat.'),
+X('Pallof press (band)',3,'12/kant',60,0,'Band op borsthoogte zijwaarts bevestigd. Duw recht naar voren, houd 1 sec, trek terug. Weersta de rotatie.',['Roteer niet mee','Span core aan','Sta stabiel']),
+X('Clamshells (band)',3,'15/kant',60,1,'Band om knieën. Zij liggend. Open bovenbeen als een schelp.',['Niet de heup draaien','Voel de buitenkant van de bil','Langzaam omlaag'],'Altijd uitvoeren voor kniestabiliteit.'),
+]},
+{key:'d6',label:'Dag 6',sub:'Hardlopen',badge:'cardio',type:'run'},
+{key:'d7',label:'Dag 7',sub:'Rust',badge:'rest',type:'rest'},
+{key:'nt',label:'Voeding',sub:'Info',badge:'info',type:'nutrition'},
+{key:'hd',label:'Houding',sub:'Dagelijks',badge:'info',type:'posture'},
+],
+[
+{key:'d1',label:'Dag 1',sub:'Upper push',badge:'push',type:'workout',exercises:[
+X('Archer push-up',4,'10/kant',90,0,'Brede plankpositie. Buig één arm terwijl de andere gestrekt blijft — gewicht gaat naar gebogen kant. Wissel.',['Lichaam recht houden','Gestrekte arm draait mee op de grond','Moeilijker dan normale push-up']),
+X('Z-press (dumbbells)',3,'10',90,0,'Zit op de vloer, benen gestrekt. Duw dumbbells omhoog vanuit schouderhoogte — geen rugsteun.',['Rug recht, niet leunen','Armen symmetrisch omhoog','Zwaarder dan het lijkt']),
+X('Dumbbell chest fly',3,'12',90,0,'Lig op rug. Laat armen wijd opengaan tot rek voelt, breng terug.',['Lichte buiging in de elleboog','Voel de borst','Controleer naar beneden']),
+X('Diamond push-ups',3,'12',90,0,'Handen dicht bij elkaar in een ruitvorm. Push-up uitvoering — maximale tricepbelasting.',['Ellebogen langs het lichaam','Handen stabiel houden','Gecontroleerd naar beneden']),
+]},
+{key:'d2',label:'Dag 2',sub:'Lower + core',badge:'lower',type:'workout',exercises:[
+X('Goblet squat',4,'12',120,1,'Dumbbell voor de borst. Squat diep en gecontroleerd.',['Hiel op de grond','Borst rechtop','Knieën naar buiten'],'Voeg meer gewicht toe als de knie het toelaat. Stop direct bij pijn.'),
+X('Single-leg RDL',3,'10/been',90,1,'Sta op één been, andere been naar achteren. Kantel voorover vanuit de heup, dumbbell langs het been naar beneden.',['Heup recht houden — niet draaien','Balancerend been licht gebogen','Voel de hamstring van het standbeen'],'Laag kniebelastend. Goed voor enkels en kniestabiliteit.'),
+X('Bulgarian split squat',4,'10/been',120,1,'Achterste voet op stoel. Voeg meer gewicht toe.',['Romp rechtop','Kniehoek in de gaten houden','Voel het diep in quad en bil'],'Voeg nu meer gewicht toe als fase 2 pijnvrij was.'),
+X('Dragon flag',3,'8',60,0,'Lig op rug, grip achter je hoofd. Hef je hele lichaam op, houd het recht en laat het gecontroleerd zakken. Begin met gebogen knieën.',['Gecontroleerd — niet laten vallen','Span core maximaal aan','Gebruik een bank voor houvast']),
+X('Terminal knee extension',3,'15/been',60,1,'Band laag bevestigd. Strek de knie vanuit licht gebogen naar gestrekt.',['Langzaam en bewust','Voel de VMO','Altijd blijven doen'],'Blijf dit altijd doen.'),
+]},
+{key:'d3',label:'Dag 3',sub:'Hardlopen',badge:'cardio',type:'run'},
+{key:'d4',label:'Dag 4',sub:'Upper pull',badge:'pull',type:'workout',exercises:[
+X('Weighted pull-ups',4,'max',120,0,'Pull-ups met dumbbell geklemd tussen de knieën of in een rugzak.',['Schouderbladen eerst activeren','Volledig strekken naar beneden','Gecontroleerd']),
+X('Chest-supported row',3,'12',90,0,'Lig voorover op een schuine bank of stoel, dumbbells hangen. Trek omhoog langs het lichaam.',['Borst blijft op de steun','Ellebogen dicht langs het lichaam','Squeeze boven aan de beweging']),
+X('Zottman curl',3,'12',60,0,'Curl omhoog met normale grip, draai de pols bovenaan naar beneden, laat zakken met omgekeerde grip.',['Langzaam bij het zakken','Volledig strekken','Gecombineerde beweging']),
+X('Face pulls (band)',3,'15',60,0,'Band op ooghoogte. Trek naar gezicht, ellebogen omhoog.',['Ellebogen hoger dan handen','Trage beweging','Achterste schouder']),
+X('Band pull-apart',3,'15',60,0,'Houd band voor je, armen gestrekt. Trek de band uiteen.',['Armen gestrekt','Squeeze op het einde','Voel tussen de schouderbladen']),
+]},
+{key:'d5',label:'Dag 5',sub:'Lower + core',badge:'lower',type:'workout',exercises:[
+X('Sumo deadlift (zwaar)',4,'10',120,1,'Brede stance, pak dumbbell in midden. Rug recht, trek omhoog.',['Rug recht','Heupen en schouders gelijkmatig','Knieën volgen de tenen'],'Zwaarder dan fase 2. Stop bij pijn.'),
+X('Hip thrust (zwaar)',4,'12',90,0,'Rug op bank, zwaardere dumbbell op heupen. Duw omhoog.',['Knijp billen samen','Voeten plat','Nek neutraal']),
+X('Skater squat',3,'8/been',120,1,'Sta op één been. Buig langzaam, achterste knie naar de grond. Gebruik steun als nodig.',['Heel gecontroleerd','Knie van standbeen recht houden','Begin met steun'],'Doe dit alleen als de knie volledig pijnvrij is bij alle andere oefeningen.'),
+X('Copenhagen plank',3,'20 sec/kant',60,0,'Zij-plank met bovenste been op een bank. Houd het onderste been omhoog.',['Heupen rechtop houden','Niet inzakken','Ademen']),
+X('Clamshells (zwaarder)',3,'15/kant',60,1,'Zwaardere band om knieën. Zij liggend. Open bovenbeen.',['Niet de heup draaien','Voel de buitenkant bil','Langzaam omlaag'],'Altijd doen.'),
+]},
+{key:'d6',label:'Dag 6',sub:'Hardlopen',badge:'cardio',type:'run'},
+{key:'d7',label:'Dag 7',sub:'Rust',badge:'rest',type:'rest'},
+{key:'nt',label:'Voeding',sub:'Info',badge:'info',type:'nutrition'},
+{key:'hd',label:'Houding',sub:'Dagelijks',badge:'info',type:'posture'},
+]
+];
+
+// ── STATE & STORAGE ──
+const ls=k=>{try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}};
+const ss=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+let phase=ls('wk_phase')??0;
+let state=ls('wk_state')??{};
+let openGuides={};
+let theme=ls('wk_theme')??'light';
+let reminders=ls('wk_reminders')??{enabled:false,morning:'09:00',evening:'21:00'};
+const WEEKDAY_MAP=[6,0,1,2,3,4,5];
+let activeTab=WEEKDAY_MAP[new Date().getDay()];
+let timerInterval=null;
+const CIRC=427.3;
+
+// ── THEME ──
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',theme);
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute('content',theme==='dark'?'#0d0d0d':'#fafaf7');
+  const toggle=document.getElementById('themeToggle');
+  if(toggle)toggle.classList.toggle('on',theme==='dark');
+  const sun=document.getElementById('themeIconSun');
+  if(sun)sun.innerHTML=theme==='dark'
+    ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+}
+window.toggleTheme=()=>{theme=theme==='dark'?'light':'dark';ss('wk_theme',theme);applyTheme();};
+
+// ── SETTINGS MODAL ──
+window.openSettings=()=>{
+  document.getElementById('settingsModal').classList.add('visible');
+  document.getElementById('themeToggle').classList.toggle('on',theme==='dark');
+  document.getElementById('reminderToggle').classList.toggle('on',reminders.enabled);
+  document.getElementById('morningTime').value=reminders.morning;
+  document.getElementById('eveningTime').value=reminders.evening;
+};
+window.closeSettings=()=>document.getElementById('settingsModal').classList.remove('visible');
+document.getElementById('settingsModal').addEventListener('click',e=>{if(e.target.id==='settingsModal')closeSettings();});
+
+window.toggleReminders=async()=>{
+  if(!reminders.enabled){
+    if('Notification' in window && Notification.permission!=='granted'){
+      const perm=await Notification.requestPermission();
+      if(perm!=='granted'){toast('Toestemming geweigerd');return;}
+    }
+    reminders.enabled=true;
+    toast('Reminders aan');
+  }else{
+    reminders.enabled=false;
+    toast('Reminders uit');
+  }
+  ss('wk_reminders',reminders);
+  document.getElementById('reminderToggle').classList.toggle('on',reminders.enabled);
+  scheduleReminders();
+};
+
+window.saveTimes=()=>{
+  reminders.morning=document.getElementById('morningTime').value;
+  reminders.evening=document.getElementById('eveningTime').value;
+  ss('wk_reminders',reminders);
+  scheduleReminders();
+};
+
+window.testNotification=()=>{
+  if('Notification' in window && Notification.permission==='granted'){
+    new Notification('Training reminder',{body:'Zo werken je meldingen.',icon:''});
+  }else{
+    toast('Geef eerst toestemming voor meldingen');
+  }
+};
+
+window.resetProgress=()=>{
+  if(confirm('Weet je zeker dat je alle voortgang van deze fase wilt wissen?')){
+    Object.keys(state).forEach(k=>{if(k.startsWith('p'+phase+'_'))delete state[k];});
+    ss('wk_state',state);
+    renderAll();
+    toast('Voortgang gereset');
+  }
+};
+
+// ── REMINDERS (in-app) ──
+let reminderTimers=[];
+function scheduleReminders(){
+  reminderTimers.forEach(t=>clearTimeout(t));
+  reminderTimers=[];
+  if(!reminders.enabled)return;
+  ['morning','evening'].forEach(k=>{
+    const[h,m]=reminders[k].split(':').map(Number);
+    const now=new Date();
+    const target=new Date();
+    target.setHours(h,m,0,0);
+    if(target<=now)target.setDate(target.getDate()+1);
+    const ms=target-now;
+    const t=setTimeout(()=>{
+      if('Notification' in window && Notification.permission==='granted'){
+        new Notification('Training reminder',{body:k==='morning'?'Goedemorgen — tijd voor je workout of stretches.':'Goedenavond — vergeet je houdingsroutine niet.'});
+      }
+      scheduleReminders();
+    },ms);
+    reminderTimers.push(t);
+  });
+}
+
+// ── TOAST ──
+let toastTimer=null;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('visible'),2000);
+}
+
+// ── TIMER ──
+function startTimer(sec){
+  clearInterval(timerInterval);
+  let rem=sec;
+  const ov=document.getElementById('timerOverlay');
+  const num=document.getElementById('timerNum');
+  const prog=document.getElementById('timerProg');
+  ov.classList.add('visible');
+  const upd=()=>{num.textContent=rem;prog.style.strokeDashoffset=CIRC*(1-rem/sec);};
+  upd();
+  timerInterval=setInterval(()=>{rem--;upd();if(rem<=0){clearInterval(timerInterval);ov.classList.remove('visible');if(navigator.vibrate)navigator.vibrate([200,100,200]);}},1000);
+}
+window.skipTimer=()=>{clearInterval(timerInterval);document.getElementById('timerOverlay').classList.remove('visible');};
+
+// ── HELPERS ──
+function days(){return DAYS_BY_PHASE[phase];}
+function sk(dk,ei,si){return `p${phase}_${dk}_${ei}_${si}`;}
+function isDone(dk,ei,si){return !!state[sk(dk,ei,si)];}
+function isExDone(dk,exs,ei){return exs[ei].sets>0&&[...Array(exs[ei].sets)].every((_,si)=>isDone(dk,ei,si));}
+function getCount(day){
+  if(!day.exercises)return{done:0,total:0};
+  let done=0,total=0;
+  day.exercises.forEach((ex,ei)=>{for(let si=0;si<ex.sets;si++){total++;if(isDone(day.key,ei,si))done++;}});
+  return{done,total};
+}
+
+// ── RENDER ──
+function renderAll(){renderHeader();renderTabs();renderContent();}
+
+function renderHeader(){
+  const day=days()[activeTab];
+  document.getElementById('weekChip').textContent=PHASES[phase].label+' · '+PHASES[phase].weeks;
+  const pw=document.getElementById('progressWrap');
+  if(day.type==='workout'){
+    pw.style.display='flex';
+    const{done,total}=getCount(day);
+    document.getElementById('progressFill').style.width=total?Math.round(done/total*100)+'%':'0%';
+    document.getElementById('progressLabel').textContent=done+'/'+total;
+  }else{pw.style.display='none';}
+}
+
+function renderTabs(){
+  const el=document.getElementById('tabs');
+  el.innerHTML=days().map((d,i)=>`<div class="tab${i===activeTab?' active':''}" onclick="switchTab(${i})">${d.label}</div>`).join('');
+  requestAnimationFrame(()=>{const a=el.querySelector('.active');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});});
+}
+
+function renderContent(){
+  const day=days()[activeTab];
+  const scroll=document.getElementById('scroll');
+  if(day.type==='run'){
+    scroll.innerHTML=`<div class="special run"><h3>Hardlopen</h3><p>Herstel- of duurloop. Kies je eigen tempo.<br><br><strong style="color:var(--text);font-weight:500">Knie tip:</strong> <span>Wissel hardlopen af met wandelen als je knie protesteert. Ren nooit door pijn heen. Bouw afstand langzaam op — max +10% per week.</span></p></div>`;
+    return;
+  }
+  if(day.type==='rest'){
+    scroll.innerHTML=`<div class="special rest"><h3>Rustdag</h3><p>Herstel is onderdeel van de training. Doe niets of een korte wandeling.</p></div>`;
+    return;
+  }
+  if(day.type==='nutrition'){
+    scroll.innerHTML=`<div class="nut-grid"><div class="nut-card"><div class="nut-val">1.6–2g</div><div class="nut-lbl">Eiwit per kg/dag</div></div><div class="nut-card"><div class="nut-val">≥1800</div><div class="nut-lbl">Minimale kcal/dag</div></div></div><div class="slabel">Focus producten</div><div class="stretch-card"><h4>Eiwitbronnen</h4><p>Kipfilet, eieren, kwark, cottage cheese. Eet bij elke maaltijd een eiwitbron.</p></div><div class="stretch-card"><h4>Niet te weinig eten</h4><p>Onderhoudsniveau — niet bulken, niet hard cutten. Te weinig eten saboteert spieropbouw.</p></div>`;
+    return;
+  }
+  if(day.type==='posture'){
+    scroll.innerHTML=`<div class="slabel">Stretchen · dagelijks</div><div class="stretch-card"><div class="stretch-sets">2 × 30 sec</div><h4>Deurpost stretch</h4><p>Sta in een deuropening, handpalmen op de deurstijlen, één stap naar voren. Voel de rek in je borst en voorste schouders.</p></div><div class="stretch-card"><div class="stretch-sets">2 × 30 sec per kant</div><h4>Heupbuiger stretch</h4><p>Knieling lunge. Achterste knie op de grond, voorste voet ver voor je. Duw je heupen licht naar voren en beneden.</p></div><div class="stretch-card"><div class="stretch-sets">2 × 20 sec</div><h4>Nekstretch zijwaarts</h4><p>Zit of sta rechtop. Laat je rechteroor langzaam naar je rechterschouder zakken — schouder niet optrekken. Leg je rechterhand lichtjes bovenop je hoofd. Voel de rek links in je nek. Houd 20 sec, wissel.</p></div><div class="slabel">Activeren</div><div class="stretch-card"><div class="stretch-sets">3 × 10–15</div><h4>Scapular wall slides</h4><p>W-positie tegen de muur. Druk je schouderbladen naar elkaar en omlaag (alsof je ze in je achterzakken stopt). Houd 2–3 sec, loslaten, herhalen.</p></div><div class="stretch-card"><div class="stretch-sets">2 × 12</div><h4>Scapular push-ups</h4><p>Plankpositie, armen gestrekt. Laat je borstkas zakken door schouderbladen samen te brengen, duw dan uiteen zonder de armen te buigen.</p></div><div class="stretch-card"><div class="stretch-sets">2 × 15</div><h4>Glute bridges</h4><p>Lig op je rug, knieën gebogen, voeten plat. Duw heupen omhoog, knijp billen samen bovenaan. Gecontroleerd terug naar beneden.</p></div>`;
+    return;
+  }
+
+  let html=`<div class="slabel">Fase</div><div class="phase-row">${PHASES.map((p,i)=>`<button class="phase-btn${i===phase?' active':''}" onclick="setPhase(${i})">${p.label}<br><span style="font-size:10px;opacity:0.7">${p.weeks}</span></button>`).join('')}</div><div class="slabel">Oefeningen</div>`;
+  day.exercises.forEach((ex,ei)=>{
+    const allDone=isExDone(day.key,day.exercises,ei);
+    const open=!!openGuides[day.key+'_'+ei];
+    html+=`<div class="ex-card${allDone?' all-done':''}">
+      <div class="ex-top" onclick="toggleGuide('${day.key}',${ei})">
+        <div class="ex-check${allDone?' checked':''}" onclick="event.stopPropagation();markAll('${day.key}',${ei},${ex.sets},${allDone})">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L4 7L9 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="ex-body">
+          <div class="ex-name">${ex.name}${ex.knee?'<span class="knee-tag">knie</span>':''}</div>
+          <div class="ex-meta">${ex.sets} sets · ${ex.reps} · ${ex.rest}s rust</div>
+        </div>
+        <div class="ex-arrow${open?' open':''}">▾</div>
+      </div>
+      <div class="sets-row">${[...Array(ex.sets)].map((_,si)=>{const d=isDone(day.key,ei,si);return`<button class="set-btn${d?' done':''}" onclick="toggleSet('${day.key}',${ei},${si},${ex.rest})">${d?'✓ ':''}Set ${si+1}</button>`;}).join('')}</div>
+      ${open?`<div class="guide"><p class="guide-how"><strong>Hoe:</strong> ${ex.guide.how}</p><ul class="guide-tips">${ex.guide.tips.map(t=>`<li>${t}</li>`).join('')}</ul>${ex.guide.kn?`<div class="knee-note"><strong>Knie:</strong> ${ex.guide.kn}</div>`:''}</div>`:''}
+    </div>`;
+  });
+  scroll.innerHTML=html;
+}
+
+window.switchTab=i=>{activeTab=i;openGuides={};renderAll();};
+window.setPhase=i=>{phase=i;ss('wk_phase',phase);openGuides={};renderAll();};
+window.toggleGuide=(dk,ei)=>{const k=dk+'_'+ei;openGuides[k]=!openGuides[k];renderContent();};
+window.toggleSet=(dk,ei,si,rest)=>{const k=sk(dk,ei,si);const was=!!state[k];state[k]=!was;ss('wk_state',state);if(!was)startTimer(rest);renderAll();};
+window.markAll=(dk,ei,n,cur)=>{for(let si=0;si<n;si++)state[sk(dk,ei,si)]=!cur;ss('wk_state',state);renderAll();};
+
+// ── INIT ──
+applyTheme();
+renderAll();
+if(reminders.enabled)scheduleReminders();
+</script>
+</body>
+</html>
