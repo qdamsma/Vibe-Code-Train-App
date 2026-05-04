@@ -1,0 +1,10 @@
+# Android
+android/.gradle/
+android/.idea/
+android/local.properties
+android/app/build/
+android/build/
+
+# General
+.DS_Store
+Thumbs.db
